@@ -12,6 +12,7 @@ app.use(cors());
 
 // Get All
 app.get('/api/notes', async (req, res) => {
+  console.log('get all');
   const notes = await prisma.note.findMany();
   res.json(notes);
 });

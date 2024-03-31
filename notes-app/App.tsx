@@ -1,6 +1,7 @@
-import { FormEvent, SyntheticEvent, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Keyboard,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -8,16 +9,38 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { initialNotes } from './helpers';
+import axios from 'axios';
+
 import NoteItem from './components/NoteItem';
 import { NoteType } from './interfaces';
 
+const BASE_URL = 'http://localhost:5000/api/notes';
+const ANDROID_URL = 'http://10.0.2.2:5000/api/notes';
+
 export default function App() {
-  const [notes, setNotes] = useState<NoteType[]>(initialNotes);
+  const [notes, setNotes] = useState<NoteType[]>([]);
   const [selectedNote, setSelectedNote] = useState<NoteType | null>(null);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+
+  const URL = Platform.OS === 'android' ? ANDROID_URL : BASE_URL;
+  console.log('os:', Platform.OS);
+  useEffect(() => {
+    const fetchNotes = async () => {
+      console.log('url:', URL);
+      try {
+        const response = await axios.get(URL);
+        console.log('response:', response);
+        const dbNotes: NoteType[] = await response.data;
+        setNotes(dbNotes);
+      } catch (error) {
+        console.log('error:', error);
+      }
+    };
+
+    fetchNotes();
+  }, []);
 
   const resetForm = () => {
     setTitle('');
@@ -26,40 +49,73 @@ export default function App() {
     Keyboard.dismiss();
   };
 
-  const handleAddNote = () => {
-    const newNote: NoteType = {
-      id: notes.length + 1,
-      title: title,
-      content: content,
-    };
+  const handleAddNote = async () => {
+    console.log('handleAddNote');
+    try {
+      const response = await fetch(URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          content,
+        }),
+      });
 
-    const newAllNotes = [...notes, newNote];
-    setNotes(newAllNotes);
-    resetForm();
+      console.log('response:', response);
+
+      const newNote = await response.json();
+      setNotes([...notes, newNote]);
+      resetForm();
+    } catch (error) {
+      console.log('error:', error);
+    }
   };
 
-  const handleUpdateNote = () => {
+  const handleUpdateNote = async () => {
     if (!selectedNote) {
       return;
     }
 
-    const updatedNote: NoteType = {
-      id: selectedNote.id,
-      title: title,
-      content: content,
-    };
+    const noteId = selectedNote.id;
 
-    const newAllNotes = notes.map((note) =>
-      note.id === selectedNote.id ? updatedNote : note
-    );
-    setNotes(newAllNotes);
-    resetForm();
+    try {
+      const response = await fetch(`${URL}/${noteId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          content,
+        }),
+      });
+
+      const updatedNote = await response.json();
+
+      const newAllNotes = notes.map((note) =>
+        note.id === selectedNote.id ? updatedNote : note
+      );
+      setNotes(newAllNotes);
+      resetForm();
+    } catch (error) {
+      console.log('error:', error);
+    }
   };
 
-  const handleDeleteNote = (noteId: number) => {
-    const newAllNotes = notes.filter((note) => note.id !== noteId);
-    setNotes(newAllNotes);
-    resetForm();
+  const handleDeleteNote = async (noteId: number) => {
+    try {
+      await fetch(`${URL}/${noteId}`, {
+        method: 'DELETE',
+      });
+
+      const newAllNotes = notes.filter((note) => note.id !== noteId);
+      setNotes(newAllNotes);
+      resetForm();
+    } catch (error) {
+      console.log('error:', error);
+    }
   };
 
   const handleNoteClick = (note: NoteType) => {
@@ -112,7 +168,7 @@ export default function App() {
         )}
       </View>
 
-      <ScrollView style={styles.notesGrid}>
+      <ScrollView contentContainerStyle={styles.notesGrid}>
         {notes.map((note, index) => (
           <NoteItem
             key={index}
@@ -152,6 +208,10 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   notesGrid: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     rowGap: 20,
   },
   editButtonsGroup: {
