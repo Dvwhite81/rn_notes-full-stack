@@ -12,7 +12,7 @@ app.use(cors());
 
 // Get All
 app.get('/api/notes', async (req, res) => {
-  console.log('get all');
+  console.log('GET');
   const notes = await prisma.note.findMany();
   res.json(notes);
 });
@@ -20,10 +20,6 @@ app.get('/api/notes', async (req, res) => {
 // Add Note
 app.post('/api/notes', async (req, res) => {
   const { title, content } = req.body;
-
-  if (!title || !content) {
-    return res.status(400).send('Title and content fields are required');
-  }
 
   try {
     const note = await prisma.note.create({
@@ -40,10 +36,6 @@ app.post('/api/notes', async (req, res) => {
 app.put('/api/notes/:id', async (req, res) => {
   const { title, content } = req.body;
   const id = parseInt(req.params.id);
-
-  if (!title || !content) {
-    return res.status(400).send('Title and content fields are required');
-  }
 
   if (!id || isNaN(id)) {
     return res.status(400).send('ID must be a valid number');
@@ -72,7 +64,9 @@ app.delete('/api/notes/:id', async (req, res) => {
     await prisma.note.delete({
       where: { id },
     });
-    res.status(204).send();
+
+    const notes = await prisma.note.findMany();
+    res.status(204).json(notes);
   } catch (error) {
     res.status(500).send('Error deleting note');
   }

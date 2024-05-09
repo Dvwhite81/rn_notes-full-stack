@@ -15,6 +15,7 @@ datasource db {
 
 model Note {
   id      Int     @id @default(autoincrement())
+  noteId  String
   title   String
   content String
 }

@@ -1,62 +1,46 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { NoteType } from '../interfaces';
+import { Pressable, Text, VStack } from 'native-base';
 
-interface NoteItemProps {
-  note: NoteType;
-  handleNoteClick: (note: NoteType) => void;
-  handleDeleteNote: (noteId: number) => void;
+interface Props {
+  title: string;
+  content: string;
+  onNotePress: () => void;
+  onLongNotePress: () => void;
 }
 
-const NoteItem = ({
-  note,
-  handleNoteClick,
-  handleDeleteNote,
-}: NoteItemProps) => {
+export default function NoteItem({
+  title,
+  content,
+  onNotePress,
+  onLongNotePress,
+}: Props) {
   return (
-    <Pressable style={styles.noteItem} onPress={() => handleNoteClick(note)}>
-      <View style={styles.noteHeader}>
-        <Pressable
-          style={styles.noteHeaderButtonStyle}
-          onPress={() => handleDeleteNote(note.id)}
+    <Pressable onPress={onNotePress} onLongPress={onLongNotePress}>
+      {({ isPressed }) => (
+        <VStack
+          bgColor={isPressed ? '#00838f' : '#fff'}
+          borderColor="#aaa"
+          borderRadius="sm"
+          borderWidth="1"
+          m="1.5"
+          p="2"
+          space="1"
         >
-          <Text style={styles.noteHeaderButtonText}>x</Text>
-        </Pressable>
-      </View>
-
-      <Text style={styles.noteHeadingText}>{note.title}</Text>
-      <Text>{note.content}</Text>
+          {title ? (
+            <Text
+              color={isPressed ? '#fff' : '#000'}
+              fontSize="md"
+              fontWeight="bold"
+            >
+              {title}
+            </Text>
+          ) : null}
+          {content ? (
+            <Text color={isPressed ? '#fff' : '#555'} fontSize="xs">
+              {content}
+            </Text>
+          ) : null}
+        </VStack>
+      )}
     </Pressable>
   );
-};
-
-const styles = StyleSheet.create({
-  noteItem: {
-    backgroundColor: '#f9f9f9',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    display: 'flex',
-    flexDirection: 'column',
-    margin: 5,
-    padding: 10,
-    shadowColor: '#fff',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    width: '45%',
-  },
-  noteHeader: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-  },
-  noteHeaderButtonStyle: {},
-  noteHeaderButtonText: {
-    fontSize: 16,
-  },
-  noteHeadingText: {
-    fontSize: 34,
-    margin: 0,
-  },
-});
-
-export default NoteItem;
+}
