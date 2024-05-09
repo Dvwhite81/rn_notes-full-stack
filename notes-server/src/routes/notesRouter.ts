@@ -16,11 +16,21 @@ router.get('/', async (req, res) => {
 
 // Add Note
 router.post('/', async (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, userId } = req.body;
 
   try {
+    const username = localStorage.getItem('user');
+
+    if (!username) {
+      return res.json({
+        error: 'Not Authorized',
+      });
+    }
+    const user = await prisma.user.findUnique({
+      where: { username: username },
+    });
     const note = await prisma.note.create({
-      data: { title, content },
+      data: { title, content, userId },
     });
 
     res.json(note);
