@@ -15,7 +15,7 @@ export default function MainNavigator() {
     <Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#000838f',
+          backgroundColor: '#00838f',
         },
         headerTintColor: '#fff',
         headerTitleStyle: {

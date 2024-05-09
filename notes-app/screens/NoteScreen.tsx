@@ -86,6 +86,7 @@ export default function NoteScreen({ navigation, route }: Props) {
   };
 
   useEffect(() => {
+    console.log('useEffect route.params, noteId:', route.params, noteId);
     if (!route.params?.id && !noteId) {
       createNote();
     } else {

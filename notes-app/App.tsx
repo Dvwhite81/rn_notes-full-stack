@@ -1,11 +1,9 @@
-import { useEffect } from 'react';
 import { NativeBaseProvider, StatusBar } from 'native-base';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import store, { persistor, useAppDispatch } from './redux/store';
-import { fetchAllNotes } from './redux/notes-actions';
+import store, { persistor } from './redux/store';
 import LoadingSpinner from './components/LoadingSpinner';
 import MainNavigator from './navigation/MainNavigator';
 
