@@ -50,7 +50,7 @@ router.put('/:id', async (req, res) => {
 
   try {
     const updatedNote = await prisma.note.update({
-      where: { id },
+      where: { id: id },
       data: { title, content },
     });
     res.json(updatedNote);
@@ -69,7 +69,7 @@ router.delete('/:id', async (req, res) => {
 
   try {
     await prisma.note.delete({
-      where: { id },
+      where: { id: id },
     });
 
     const notes = await prisma.note.findMany();
