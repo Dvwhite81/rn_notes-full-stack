@@ -79,13 +79,13 @@ export default function TopNav({
             extraProps={{ size: 'sm' }}
           />
           <Button
-            maxHeight="4rem"
+            maxHeight="12"
             backgroundColor="#00838f"
             onPress={onHomePress}
           >
             <Image
+              maxHeight="12"
               resizeMode="contain"
-              maxHeight="3rem"
               flex={1}
               source={require('../assets/n-logo-white.png')}
               alt="logo"

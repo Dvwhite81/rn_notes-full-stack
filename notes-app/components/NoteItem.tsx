@@ -1,6 +1,8 @@
-import { Pressable, Text, VStack } from 'native-base';
+import { Pressable, Text, useToast, VStack } from 'native-base';
+import { useAppSelector } from '../redux/store';
 
 interface Props {
+  userId: number;
   title: string;
   content: string;
   onNotePress: () => void;
@@ -8,13 +10,33 @@ interface Props {
 }
 
 export default function NoteItem({
+  userId,
   title,
   content,
   onNotePress,
   onLongNotePress,
 }: Props) {
+  const { loggedInUser } = useAppSelector((state) => state.profileInfo);
+
+  const pressToast = useToast();
+
+  const handlePress = (func: () => void) => {
+    if (loggedInUser && loggedInUser.id === userId) {
+      func();
+    } else {
+      pressToast.show({
+        description: 'You can only edit your own posts',
+        duration: 2000,
+        bg: 'warning.500',
+      });
+    }
+  };
+
   return (
-    <Pressable onPress={onNotePress} onLongPress={onLongNotePress}>
+    <Pressable
+      onPress={() => handlePress(onNotePress)}
+      onLongPress={() => handlePress(onLongNotePress)}
+    >
       {({ isPressed }) => (
         <VStack
           bgColor={isPressed ? '#00838f' : '#fff'}

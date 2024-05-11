@@ -1,9 +1,8 @@
-import { NewNote, NoteType } from '../utils/interfaces';
+import { NewNote, NoteType, UserType } from '../utils/interfaces';
 import notesService from '../services/notesService';
 import { addNote, removeNote, setAllNotes, updateNote } from './notes-slice';
-import { AppDispatch } from './store';
+import { AppDispatch, useAppSelector } from './store';
 import { setUserNotes } from './profile-slice';
-import { setLoading } from './site-slice';
 
 export const fetchAllNotes = () => {
   return async (dispatch: AppDispatch) => {
@@ -32,9 +31,9 @@ export const fetchUserNotes = (userId: number) => {
   };
 };
 
-export const addNewNote = (newNote: NewNote) => {
+export const addNewNote = (newNote: NewNote, loggedInUser: UserType) => {
   return async (dispatch: AppDispatch) => {
-    const result = await notesService.addNote(newNote);
+    const result = await notesService.addNote(newNote, loggedInUser.id);
     const { success, message } = result;
 
     if (success) {
@@ -47,9 +46,9 @@ export const addNewNote = (newNote: NewNote) => {
   };
 };
 
-export const editNote = (note: NoteType) => {
+export const editNote = (note: NoteType, loggedInUser: UserType) => {
   return async (dispatch: AppDispatch) => {
-    const result = await notesService.updateNote(note);
+    const result = await notesService.updateNote(note, loggedInUser.id);
     const { success, message } = result;
 
     if (success) {

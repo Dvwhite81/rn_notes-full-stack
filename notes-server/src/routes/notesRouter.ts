@@ -34,19 +34,12 @@ router.get('/', async (req, res) => {
 
 // Add Note
 router.post('/', async (req, res) => {
-  const { title, content } = req.body;
-  const { user } = req;
-
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: 'You must be logged in to post notes',
-    });
-  }
+  const { note, userId } = req.body;
+  const { title, content } = note;
 
   try {
     const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
+      where: { id: userId },
     });
 
     if (!dbUser) {
@@ -82,17 +75,10 @@ router.post('/', async (req, res) => {
 
 // Update note
 router.put('/:id', async (req, res) => {
-  const { title, content } = req.body;
+  const { note, userId } = req.body;
+  const { title, content } = note;
+
   const id = parseInt(req.params.id);
-
-  const { user } = req;
-
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: 'You must be logged in to post notes',
-    });
-  }
 
   if (!id || isNaN(id)) {
     return res.json({
@@ -102,7 +88,7 @@ router.put('/:id', async (req, res) => {
   }
 
   const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
+    where: { id: userId },
   });
 
   if (!dbUser) {
@@ -112,18 +98,18 @@ router.put('/:id', async (req, res) => {
     });
   }
 
-  const note = await prisma.note.findUnique({
+  const existingNote = await prisma.note.findUnique({
     where: { id: id },
   });
 
-  if (!note) {
+  if (!existingNote) {
     return res.status(404).json({
       success: false,
       message: 'Note could not be found',
     });
   }
 
-  if (note.userId !== dbUser.id) {
+  if (existingNote.userId !== dbUser.id) {
     return res.status(401).json({
       success: false,
       message: 'You cannot change this note',

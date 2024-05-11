@@ -61,7 +61,7 @@ export default function NoteScreen({ navigation, route }: Props) {
       content: noteContent,
       userId: loggedInUser.id,
     };
-    const { success, message } = await dispatch(editNote(note));
+    const { success, message } = await dispatch(editNote(note, loggedInUser));
 
     if (success) {
       saveNoteToast.show({
@@ -84,7 +84,7 @@ export default function NoteScreen({ navigation, route }: Props) {
   const createNote = async () => {
     if (noteId) return;
     const note = { title: '', content: '' };
-    const result = await dispatch(addNewNote(note));
+    const result = await dispatch(addNewNote(note, loggedInUser));
     const { success, message } = result;
 
     if (success) {
@@ -117,6 +117,12 @@ export default function NoteScreen({ navigation, route }: Props) {
 
     if (noteIdRef.current) {
       dispatch(deleteNote(noteIdRef.current));
+    }
+  };
+
+  const handleDelete = () => {
+    if (noteId) {
+      dispatch(deleteNote(noteId));
     }
   };
 
@@ -153,6 +159,7 @@ export default function NoteScreen({ navigation, route }: Props) {
           {...{ mt: '0' }}
         />
         <CustomButton text="Save" onPressAction={saveNote} />
+        <CustomButton text="Delete" onPressAction={handleDelete} />
       </VStack>
     </KeyboardAwareScrollView>
   );

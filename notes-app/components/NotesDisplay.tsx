@@ -5,7 +5,6 @@ import NoteItem from './NoteItem';
 import { useEffect } from 'react';
 import { fetchAllNotes, fetchUserNotes } from '../redux/notes-actions';
 import LoadingSpinner from './LoadingSpinner';
-import { setLoading } from '../redux/site-slice';
 
 interface Props {
   onNotePress: (id: number) => void;
@@ -53,6 +52,7 @@ export default function NotesDisplay({ onNotePress, onLongNotePress }: Props) {
       data={filteredNotes}
       renderItem={({ item }) => (
         <NoteItem
+          userId={item.userId}
           title={item.title}
           content={item.content}
           onNotePress={() => onNotePress(item.id)}

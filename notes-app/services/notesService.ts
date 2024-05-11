@@ -16,12 +16,12 @@ export default {
     const response = await axios.get(`${URL}/${noteId}`);
     return response.data;
   },
-  async updateNote(note: NoteType) {
-    const response = await axios.put(`${URL}/${note.id}`, note);
+  async updateNote(note: NoteType, userId: number) {
+    const response = await axios.put(`${URL}/${note.id}`, { note, userId });
     return response.data;
   },
-  async addNote(note: NewNote) {
-    const response = await axios.post(`${URL}`, note);
+  async addNote(note: NewNote, userId: number) {
+    const response = await axios.post(`${URL}`, { note, userId });
     return response.data;
   },
   async deleteNote(id: number) {
