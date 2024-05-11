@@ -7,35 +7,76 @@ const prisma = new PrismaClient();
 // Get All
 router.get('/', async (req, res) => {
   console.log('GET');
-  const notes = await prisma.note.findMany();
-  const goodNotes = notes.filter(
-    (note) => note.content.length > 0 && note.title.length > 0
-  );
-  res.json(goodNotes);
+  try {
+    const notes = await prisma.note.findMany();
+
+    if (notes) {
+      const goodNotes = notes.filter(
+        (note) => note.content.length > 0 && note.title.length > 0
+      );
+      return res.status(200).json({
+        success: true,
+        notes: goodNotes,
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: 'Notes could not be found',
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Error getting notes',
+    });
+  }
 });
 
 // Add Note
 router.post('/', async (req, res) => {
-  const { title, content, userId } = req.body;
+  const { title, content } = req.body;
+  const { user } = req;
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: 'You must be logged in to post notes',
+    });
+  }
 
   try {
-    const username = localStorage.getItem('user');
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+    });
 
-    if (!username) {
-      return res.json({
-        error: 'Not Authorized',
+    if (!dbUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User could not be found',
       });
     }
-    const user = await prisma.user.findUnique({
-      where: { username: username },
-    });
+
     const note = await prisma.note.create({
-      data: { title, content, userId },
+      data: { title, content, userId: dbUser.id },
     });
 
-    res.json(note);
+    if (note) {
+      return res.status(201).json({
+        success: true,
+        message: 'Added your note!',
+        note,
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: 'Could not create note',
+      });
+    }
   } catch (error) {
-    res.status(500).send('Error creating new note');
+    res.status(500).json({
+      success: false,
+      message: 'Error creating new note',
+    });
   }
 });
 
@@ -44,8 +85,49 @@ router.put('/:id', async (req, res) => {
   const { title, content } = req.body;
   const id = parseInt(req.params.id);
 
+  const { user } = req;
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: 'You must be logged in to post notes',
+    });
+  }
+
   if (!id || isNaN(id)) {
-    return res.status(400).send('ID must be a valid number');
+    return res.json({
+      success: false,
+      message: 'ID must be a valid number',
+    });
+  }
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+  });
+
+  if (!dbUser) {
+    return res.status(404).json({
+      success: false,
+      message: 'User could not be found',
+    });
+  }
+
+  const note = await prisma.note.findUnique({
+    where: { id: id },
+  });
+
+  if (!note) {
+    return res.status(404).json({
+      success: false,
+      message: 'Note could not be found',
+    });
+  }
+
+  if (note.userId !== dbUser.id) {
+    return res.status(401).json({
+      success: false,
+      message: 'You cannot change this note',
+    });
   }
 
   try {
@@ -53,9 +135,24 @@ router.put('/:id', async (req, res) => {
       where: { id: id },
       data: { title, content },
     });
-    res.json(updatedNote);
+
+    if (updatedNote) {
+      return res.status(200).json({
+        success: true,
+        message: 'Updated your note!',
+        note: updatedNote,
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: 'Not could not be updated',
+      });
+    }
   } catch (error) {
-    res.status(500).send('Error updating note');
+    res.status(500).json({
+      success: false,
+      message: 'Error updating note',
+    });
   }
 });
 
@@ -63,19 +160,68 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const id = parseInt(req.params.id);
 
+  const { user } = req;
+
   if (!id || isNaN(id)) {
-    return res.status(400).send('ID must be a valid number');
+    return res.json({
+      success: false,
+      message: 'ID must be a valid number',
+    });
   }
 
   try {
-    await prisma.note.delete({
+    const note = await prisma.note.findUnique({
       where: { id: id },
     });
 
-    const notes = await prisma.note.findMany();
-    res.status(204).json(notes);
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: 'Note could not be found',
+      });
+    }
+
+    if (!user || note.userId !== user.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'You cannot delete this note',
+      });
+    }
+
+    const deletedNote = await prisma.note.delete({
+      where: { id: id },
+    });
+
+    if (deletedNote) {
+      const notes = await prisma.note.findMany();
+
+      if (notes) {
+        const goodNotes = notes.filter(
+          (note) => note.content.length > 0 && note.title.length > 0
+        );
+        return res.status(200).json({
+          success: true,
+          message: 'Deleted your note!',
+          notes: goodNotes,
+        });
+      } else {
+        return res.status(404).json({
+          success: true,
+          message: 'Deleted your note, but notes cannot be found',
+          notes: [],
+        });
+      }
+    } else {
+      return res.json({
+        success: false,
+        message: 'Not could not be deleted',
+      });
+    }
   } catch (error) {
-    res.status(500).send('Error deleting note');
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting note',
+    });
   }
 });
 

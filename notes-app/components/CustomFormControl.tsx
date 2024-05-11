@@ -11,7 +11,6 @@ interface Props {
   placeholder: string;
   inputType: IInputProps['type'];
   required: IFormControlProps['isRequired'];
-  invalid: IFormControlProps['isInvalid'];
   errorMessage?: string;
   value?: string;
   onChangeText?: (text: string) => void;
@@ -22,13 +21,12 @@ export default function CustomFormControl({
   placeholder,
   inputType,
   required,
-  invalid,
   errorMessage,
   value,
   onChangeText,
 }: Props) {
   return (
-    <FormControl isRequired={required} isInvalid={invalid}>
+    <FormControl isRequired={required} alignItems="center">
       <FormControl.Label>{inputName}</FormControl.Label>
       <Input
         type={inputType}

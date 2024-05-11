@@ -18,6 +18,15 @@ export default function NoteScreen({ navigation, route }: Props) {
   const [noteContent, setNoteContent] = useState('');
 
   const notes = useAppSelector((state) => state.notes.notes);
+  const loggedInUser = useAppSelector(
+    (state) => state.profileInfo.loggedInUser
+  );
+
+  if (!loggedInUser) {
+    navigation.navigate('Login');
+    return;
+  }
+
   const dispatch = useAppDispatch();
 
   const noteIdRef = useRef<number | undefined>();
@@ -46,7 +55,12 @@ export default function NoteScreen({ navigation, route }: Props) {
   const saveNote = () => {
     if (!noteId) return;
 
-    const note = { id: noteId, title: noteTitle, content: noteContent };
+    const note = {
+      id: noteId,
+      title: noteTitle,
+      content: noteContent,
+      userId: loggedInUser.id,
+    };
     dispatch(editNote(note));
 
     navigation.navigate('Home');

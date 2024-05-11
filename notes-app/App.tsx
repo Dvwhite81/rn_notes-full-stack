@@ -1,4 +1,4 @@
-import { NativeBaseProvider, StatusBar } from 'native-base';
+import { Heading, NativeBaseProvider, StatusBar } from 'native-base';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';

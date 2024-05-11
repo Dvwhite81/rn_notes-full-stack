@@ -33,14 +33,14 @@ const errorHandler = (
   console.log('name:', error.name);
 
   if (error.name === 'CastError') {
-    return res.status(400).send({ error: 'malformatted id' });
+    return res.send({ error: 'malformatted id' });
   } else if (error.name === 'ValidationError') {
-    return res.status(400).json({ error: error.message });
+    return res.json({ error: error.message });
   } else if (
     error.name === 'MongoServerError' &&
     error.message.includes('E11000 duplicate key error')
   ) {
-    return res.status(400).json({ error: 'expected `username` to be unique' });
+    return res.json({ error: 'expected `username` to be unique' });
   } else if (error.name === 'TokenExpiredError') {
     return res.status(401).json({ error: 'token expired' });
   }
@@ -88,7 +88,7 @@ const userExtractor = async (
     where: { id: userId },
   });
   if (user) {
-    const requestUser = { ...user, _id: user.id };
+    const requestUser = { ...user, id: user.id };
     req.user = requestUser;
   }
 

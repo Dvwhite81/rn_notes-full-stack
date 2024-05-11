@@ -9,3 +9,18 @@ export interface ReqType extends Request {
 export interface CustomJwtPayload extends JwtPayload {
   _id: string;
 }
+
+export interface NoteModel {
+  id: number;
+  title: string;
+  content: string;
+  userId: number;
+  User: UserModel;
+}
+
+export interface UserModel {
+  id: number;
+  username: string;
+  password: string;
+  Note: NoteModel[];
+}

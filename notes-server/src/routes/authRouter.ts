@@ -11,13 +11,14 @@ const prisma = new PrismaClient();
 router.post('/register', async (req, res) => {
   const { username, password } = req.body;
 
-  const existingUser = await prisma.user.findFirst({
+  const existingUser = await prisma.user.findUnique({
     where: { username: username },
   });
 
   if (existingUser) {
     return res.json({
-      error: 'Username is taken',
+      success: false,
+      message: 'Username is taken',
     });
   }
 
@@ -28,14 +29,28 @@ router.post('/register', async (req, res) => {
       data: { username, password: hashedPassword },
     });
 
-    res.json(user);
+    if (user) {
+      return res.status(201).json({
+        success: true,
+        message: 'Registered successfully!',
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: 'Could not register user',
+      });
+    }
   } catch (error) {
-    res.status(500).send('Error creating new user');
+    return res.status(500).json({
+      success: false,
+      message: 'Error creating new user',
+    });
   }
 });
 
 // Login
 router.post('/login', async (req, res) => {
+  console.log('reqBody:', req.body);
   const { username, password } = req.body;
 
   try {
@@ -45,7 +60,8 @@ router.post('/login', async (req, res) => {
     console.log('login user:', user);
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.json({
-        error: 'Invalid credentials',
+        success: false,
+        message: 'Invalid credentials',
       });
     }
 
@@ -66,7 +82,10 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.log('login error:', error);
-    res.status(500).send('Error logging in');
+    return res.json({
+      success: false,
+      message: 'Error logging in',
+    });
   }
 });
 

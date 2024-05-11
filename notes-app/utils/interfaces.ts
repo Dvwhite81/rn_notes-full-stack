@@ -5,6 +5,7 @@ export interface NewNote {
 
 export interface NoteType extends NewNote {
   id: number;
+  userId: number;
 }
 
 export interface UpdateableNote {
@@ -19,9 +20,16 @@ export interface NotesState {
   idOfNoteToDelete: number | undefined;
 }
 
+export interface UserType {
+  id: number;
+  username: string;
+  password: string;
+}
+
 export interface Profile {
-  firstName: string;
-  lastName?: string;
+  loggedInUser: UserType | null;
+  notes: NoteType[];
+  message: string;
 }
 
 export interface QueryResponse {

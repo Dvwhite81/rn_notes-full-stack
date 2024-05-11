@@ -1,11 +1,12 @@
 import axios from 'axios';
-import { NewNote, NoteType } from '../interfaces';
+import { NewNote, NoteType } from '../utils/interfaces';
 import { Platform } from 'react-native';
 
 const ANDROID_URL = 'http://192.168.1.70:5000/api/notes';
 const WEB_URL = 'http://localhost:5000/api/notes';
 
 const URL = Platform.OS === 'android' ? ANDROID_URL : WEB_URL;
+
 export default {
   async getAllNotes() {
     const response = await axios.get(`${URL}`);
@@ -26,5 +27,12 @@ export default {
   async deleteNote(id: number) {
     const response = await axios.delete(`${URL}/${id}`);
     return response.data;
+  },
+  async getUserNotes(userId: number) {
+    const response = await axios.get(`${URL}`);
+    console.log('getUserNotes response:', response);
+    return response.data.notes.filter(
+      (note: NoteType) => note.userId === userId
+    );
   },
 };

@@ -12,6 +12,7 @@ export default function NotesDisplay({ onNotePress, onLongNotePress }: Props) {
   const notes = useAppSelector((state) => state.notes.notes);
   const searchTerm = useAppSelector((state) => state.notes.searchTerm);
 
+  console.log('notesdisplay notes:', notes);
   const filteredNotes = notes.filter(
     (note) =>
       note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

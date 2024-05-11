@@ -1,4 +1,4 @@
-import { NewNote, NoteType } from '../interfaces';
+import { NewNote, NoteType } from '../utils/interfaces';
 import notesService from '../services/notesService';
 import { addNote, removeNote, setAllNotes, updateNote } from './notes-slice';
 import { AppDispatch } from './store';

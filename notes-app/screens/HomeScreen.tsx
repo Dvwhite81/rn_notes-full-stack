@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AddIcon, Box, Button } from 'native-base';
+import { AddIcon, Box, Button, Heading, Image } from 'native-base';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { RootStackParams } from '../navigation/NavigatorTypes';
@@ -7,7 +7,8 @@ import { useAppDispatch, useAppSelector } from '../redux/store';
 import { setIdOfNoteToDelete, setSearchTerm } from '../redux/notes-slice';
 import ActionModal from '../components/ActionModal';
 import NotesDisplay from '../components/NotesDisplay';
-import { deleteNote, fetchAllNotes } from '../redux/notes-actions';
+import { deleteNote } from '../redux/notes-actions';
+import Message from '../components/Message';
 
 type Props = NativeStackScreenProps<RootStackParams, 'Home'>;
 
@@ -17,22 +18,37 @@ export default function HomeScreen({ navigation }: Props) {
   const idOfNoteToDelete = useAppSelector(
     (state) => state.notes.idOfNoteToDelete
   );
+  const loggedInUser = useAppSelector(
+    (state) => state.profileInfo.loggedInUser
+  );
+  const message = useAppSelector((state) => state.profileInfo.message);
+
+  if (!loggedInUser) {
+    return (
+      <>
+        <Message />
+        <Heading size="3xl" color="#00838f" pt={5} textAlign="center">
+          Welcome to
+        </Heading>
+        <Box h="30%" w="full" alignItems="center" justifyContent="center">
+          <Image
+            resizeMode="contain"
+            flex={1}
+            source={require('../assets/native-notes-logo.png')}
+          />
+        </Box>
+        <Heading color="#00838f" pt={5} textAlign="center">
+          Log In To See Posts!
+        </Heading>
+      </>
+    );
+  }
+
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    const getInitialNotes = async () => {
-      dispatch(fetchAllNotes());
-    };
-
-    getInitialNotes();
-  }, []);
-
-  useEffect(() => {
-    dispatch(setSearchTerm({ searchTerm: '' }));
-  }, []);
 
   return (
     <>
+      <Message />
       <ActionModal
         modalIsOpen={modalIsOpen}
         closeModal={() => setModalIsOpen(false)}

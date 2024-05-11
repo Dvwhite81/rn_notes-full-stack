@@ -16,6 +16,7 @@ export default function CustomButton({
       bgColor="#00838f"
       _pressed={{ bgColor: '#005662' }}
       onPress={onPressAction}
+      mt={2}
       {...extraProps}
     >
       {text}
