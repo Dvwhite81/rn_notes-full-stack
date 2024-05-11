@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { useAppDispatch } from '../redux/store';
 import { useToast, VStack } from 'native-base';
-import { userRegister } from '../redux/profile-actions';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import CustomFormControl from '../components/CustomFormControl';
-import CustomButton from '../components/CustomButton';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParams } from '../navigation/NavigatorTypes';
+
+import { RootStackParams } from '../utils/interfaces';
+import { useAppDispatch } from '../redux/store';
+import { userRegister } from '../redux/profile-actions';
+
+import CustomButton from '../components/CustomButton';
+import CustomFormControl from '../components/CustomFormControl';
 
 type Props = NativeStackScreenProps<RootStackParams, 'Register'>;
 

@@ -1,10 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Profile, UserType } from '../utils/interfaces';
+import { NoteType, Profile, UserType } from '../utils/interfaces';
 
 const initialState: Profile = {
   loggedInUser: null,
   notes: [],
-  message: '',
 };
 
 export const profileSlice = createSlice({
@@ -16,9 +15,11 @@ export const profileSlice = createSlice({
       state.loggedInUser = loggedInUser;
       state.notes = notes;
     },
-    setLoggedInUser: (state, action: PayloadAction<Profile>) => {
-      state.loggedInUser = action.payload.loggedInUser;
-      state.notes = action.payload.notes;
+    setLoggedInUser: (state, action: PayloadAction<UserType>) => {
+      state.loggedInUser = action.payload;
+    },
+    setUserNotes: (state, action: PayloadAction<NoteType[]>) => {
+      state.notes = action.payload;
     },
     removeLoggedInUser: (state) => {
       state.loggedInUser = null;
@@ -29,18 +30,15 @@ export const profileSlice = createSlice({
 
       state.loggedInUser.username = action.payload.username;
     },
-    changeMessage: (state, action: PayloadAction<string>) => {
-      state.message = action.payload;
-    },
   },
 });
 
 export const {
   saveProfileInfo,
   setLoggedInUser,
+  setUserNotes,
   removeLoggedInUser,
   changeUsername,
-  changeMessage,
 } = profileSlice.actions;
 
 export default profileSlice.reducer;

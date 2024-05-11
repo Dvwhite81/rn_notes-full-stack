@@ -24,7 +24,12 @@ const notesSlice = createSlice({
         if (note.id === id) {
           const titleValue = title ?? note.title;
           const contentValue = content ?? note.content;
-          return { id, title: titleValue, content: contentValue };
+          return {
+            id,
+            title: titleValue,
+            content: contentValue,
+            userId: note.userId,
+          };
         }
 
         return note;

@@ -29,6 +29,10 @@ export interface UserType {
 export interface Profile {
   loggedInUser: UserType | null;
   notes: NoteType[];
+}
+
+export interface SiteInfo {
+  loading: boolean;
   message: string;
 }
 
@@ -40,3 +44,11 @@ export interface QueryResponse {
   note?: NoteType[];
   error?: string;
 }
+
+export type RootStackParams = {
+  Home: undefined;
+  Profile: undefined;
+  Note: { id: number } | undefined;
+  Register: undefined;
+  Login: undefined;
+};

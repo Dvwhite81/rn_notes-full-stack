@@ -1,17 +1,21 @@
 import { useState } from 'react';
-import { useAppDispatch } from '../redux/store';
 import { useToast, VStack } from 'native-base';
-import { userLogin } from '../redux/profile-actions';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import CustomFormControl from '../components/CustomFormControl';
-import CustomButton from '../components/CustomButton';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParams } from '../navigation/NavigatorTypes';
+
+import { RootStackParams } from '../utils/interfaces';
+import { useAppDispatch, useAppSelector } from '../redux/store';
+import { userLogin } from '../redux/profile-actions';
+
+import CustomButton from '../components/CustomButton';
+import CustomFormControl from '../components/CustomFormControl';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 type Props = NativeStackScreenProps<RootStackParams, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
+  const { loading } = useAppSelector((state) => state.siteInfo);
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -41,10 +45,6 @@ export default function LoginScreen({ navigation }: Props) {
 
     const { success, message } = await dispatch(userLogin(username, password));
     console.log('success:', success);
-    loginToast.show({
-      description: message,
-      duration: 4000,
-    });
 
     if (success) {
       loginToast.show({
@@ -63,6 +63,10 @@ export default function LoginScreen({ navigation }: Props) {
       });
     }
   };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <KeyboardAwareScrollView>

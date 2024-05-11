@@ -3,12 +3,14 @@ import { useToast, VStack } from 'native-base';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
+import { RootStackParams } from '../utils/interfaces';
 import { useAppDispatch, useAppSelector } from '../redux/store';
-import { RootStackParams } from '../navigation/NavigatorTypes';
 import { addNewNote, deleteNote, editNote } from '../redux/notes-actions';
 import { updateNote } from '../redux/notes-slice';
-import CustomInput from '../components/CustomInput';
+
 import CustomButton from '../components/CustomButton';
+import CustomInput from '../components/CustomInput';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 type Props = NativeStackScreenProps<RootStackParams, 'Note'>;
 
@@ -17,17 +19,15 @@ export default function NoteScreen({ navigation, route }: Props) {
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
 
-  const notes = useAppSelector((state) => state.notes.notes);
-  const loggedInUser = useAppSelector(
-    (state) => state.profileInfo.loggedInUser
-  );
+  const dispatch = useAppDispatch();
+  const { notes } = useAppSelector((state) => state.notes);
+  const { loggedInUser } = useAppSelector((state) => state.profileInfo);
+  const { loading } = useAppSelector((state) => state.siteInfo);
 
   if (!loggedInUser) {
     navigation.navigate('Login');
     return;
   }
-
-  const dispatch = useAppDispatch();
 
   const noteIdRef = useRef<number | undefined>();
   noteIdRef.current = noteId;
@@ -52,7 +52,7 @@ export default function NoteScreen({ navigation, route }: Props) {
 
   const saveNoteToast = useToast();
 
-  const saveNote = () => {
+  const saveNote = async () => {
     if (!noteId) return;
 
     const note = {
@@ -61,22 +61,43 @@ export default function NoteScreen({ navigation, route }: Props) {
       content: noteContent,
       userId: loggedInUser.id,
     };
-    dispatch(editNote(note));
+    const { success, message } = await dispatch(editNote(note));
 
-    navigation.navigate('Home');
-
-    saveNoteToast.show({
-      description: 'Saved Note',
-      duration: 2000,
-    });
-    setNoteId(undefined);
+    if (success) {
+      saveNoteToast.show({
+        description: 'Saved Note!',
+        duration: 2000,
+        bg: 'success.500',
+      });
+      setNoteId(undefined);
+      navigation.navigate('Home');
+    } else {
+      saveNoteToast.show({
+        description: message,
+        duration: 4000,
+        bg: 'danger.500',
+        placement: 'top',
+      });
+    }
   };
 
   const createNote = async () => {
     if (noteId) return;
     const note = { title: '', content: '' };
-    const savedNote = await dispatch(addNewNote(note));
-    setNoteId(savedNote.id);
+    const result = await dispatch(addNewNote(note));
+    const { success, message } = result;
+
+    if (success) {
+      const { note } = result;
+      setNoteId(note.id);
+    } else {
+      saveNoteToast.show({
+        description: message,
+        duration: 4000,
+        bg: 'danger.500',
+        placement: 'top',
+      });
+    }
   };
 
   const setNote = () => {
@@ -109,6 +130,10 @@ export default function NoteScreen({ navigation, route }: Props) {
 
     return cancelNote;
   }, []);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <KeyboardAwareScrollView>

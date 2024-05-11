@@ -20,9 +20,7 @@ export default function TopNav({
   onLogoutPress,
   onHomePress,
 }: Props) {
-  const loggedInUser = useAppSelector(
-    (state) => state.profileInfo.loggedInUser
-  );
+  const { loggedInUser } = useAppSelector((state) => state.profileInfo);
   const dispatch = useAppDispatch();
 
   return (
@@ -49,7 +47,7 @@ export default function TopNav({
                 icon={
                   <CustomAvatar
                     size="sm"
-                    source={require('../assets/logout.png')}
+                    source={require('../assets/logout-circle.png')}
                   />
                 }
                 onPressAction={onLogoutPress}

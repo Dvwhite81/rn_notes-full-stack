@@ -28,11 +28,4 @@ export default {
     const response = await axios.delete(`${URL}/${id}`);
     return response.data;
   },
-  async getUserNotes(userId: number) {
-    const response = await axios.get(`${URL}`);
-    console.log('getUserNotes response:', response);
-    return response.data.notes.filter(
-      (note: NoteType) => note.userId === userId
-    );
-  },
 };

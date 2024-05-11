@@ -2,7 +2,7 @@ import { Box, Heading } from 'native-base';
 import { useAppSelector } from '../redux/store';
 
 export default function Message() {
-  const message = useAppSelector((state) => state.profileInfo.message);
+  const { message } = useAppSelector((state) => state.siteInfo);
 
   return (
     message.length > 0 && (

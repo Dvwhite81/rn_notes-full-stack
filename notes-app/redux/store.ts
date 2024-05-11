@@ -15,6 +15,7 @@ import {
 
 import notesSlice from './notes-slice';
 import profileSlice from './profile-slice';
+import siteSlice from './site-slice';
 
 const persistConfig = {
   key: 'root',
@@ -24,6 +25,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   notes: notesSlice,
   profileInfo: profileSlice,
+  siteInfo: siteSlice,
 });
 
 const persistingReducer = persistReducer(persistConfig, rootReducer);

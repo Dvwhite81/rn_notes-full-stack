@@ -3,45 +3,63 @@ import { useToast, VStack } from 'native-base';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import { RootStackParams } from '../navigation/NavigatorTypes';
+import { RootStackParams } from '../utils/interfaces';
 import { useAppDispatch, useAppSelector } from '../redux/store';
-import { changeUsername } from '../redux/profile-slice';
+import { userUpdateUsername } from '../redux/profile-actions';
+
 import CustomAvatar from '../components/CustomAvatar';
 import CustomButton from '../components/CustomButton';
 import CustomFormControl from '../components/CustomFormControl';
-import { userUpdateUsername } from '../redux/profile-actions';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 type Props = NativeStackScreenProps<RootStackParams, 'Profile'>;
 
 export default function ProfileScreen({}: Props) {
-  const profileInfo = useAppSelector((state) => state.profileInfo);
   const dispatch = useAppDispatch();
-
-  const { loggedInUser } = profileInfo;
+  const { loggedInUser } = useAppSelector((state) => state.profileInfo);
+  const { loading } = useAppSelector((state) => state.siteInfo);
 
   if (!loggedInUser) return;
 
   const [username, setUsername] = useState<string>(
     loggedInUser?.username || ''
   );
-  const [nameIsInvalid, setNameIsInvalid] = useState(false);
 
   const saveProfileToast = useToast();
 
-  const saveCurrentProfileInfo = () => {
-    if (username === '') {
-      setNameIsInvalid(true);
+  const saveCurrentProfileInfo = async () => {
+    if (username.length < 3) {
+      saveProfileToast.show({
+        description: 'Username must be at least 3 characters',
+        duration: 2000,
+        bg: 'danger.500',
+      });
       return;
     }
 
-    setNameIsInvalid(false);
-    dispatch(userUpdateUsername(loggedInUser, username));
+    const { success, message } = await dispatch(
+      userUpdateUsername(loggedInUser, username)
+    );
 
-    saveProfileToast.show({
-      description: 'Saved Profile Info',
-      duration: 2000,
-    });
+    if (success) {
+      saveProfileToast.show({
+        description: message,
+        duration: 2000,
+        bg: 'success.500',
+      });
+    } else {
+      saveProfileToast.show({
+        description: message,
+        duration: 2000,
+        bg: 'danger.500',
+        placement: 'top',
+      });
+    }
   };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <KeyboardAwareScrollView>
@@ -55,8 +73,7 @@ export default function ProfileScreen({}: Props) {
           <CustomFormControl
             inputName="Username"
             inputType="text"
-            invalid={nameIsInvalid}
-            placeholder="e.g. John"
+            placeholder="Enter new username"
             required={true}
             errorMessage="This field is required"
             value={username}

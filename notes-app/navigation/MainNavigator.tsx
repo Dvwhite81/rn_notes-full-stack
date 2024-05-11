@@ -1,14 +1,15 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { RootStackParams } from './NavigatorTypes';
-import HomeScreen from '../screens/HomeScreen';
-import TopNav from '../components/TopNav';
-import ProfileScreen from '../screens/ProfileScreen';
-import NoteScreen from '../screens/NoteScreen';
-import RegisterScreen from '../screens/RegisterScreen';
-import LoginScreen from '../screens/LoginScreen';
-import { useAppDispatch, useAppSelector } from '../redux/store';
+import { useAppDispatch } from '../redux/store';
 import { userLogout } from '../redux/profile-actions';
+
+import HomeScreen from '../screens/HomeScreen';
+import LoginScreen from '../screens/LoginScreen';
+import NoteScreen from '../screens/NoteScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import TopNav from '../components/TopNav';
 
 const Stack = createNativeStackNavigator<RootStackParams>();
 
